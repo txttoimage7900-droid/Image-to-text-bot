@@ -28,8 +28,6 @@ bot.on("photo", async (msg) => {
   const chatId = msg.chat.id;
 
   try {
-    await bot.sendMessage(chatId, "📥 Receiving image...");
-
     // Get highest quality image
     const photo = msg.photo[msg.photo.length - 1];
     const fileId = photo.file_id;
@@ -49,13 +47,8 @@ bot.on("photo", async (msg) => {
     response.data.pipe(writer);
 
     writer.on("finish", async () => {
-      await bot.sendMessage(chatId, "🧠 Extracting text...");
 
       const text = await extractText(filePath);
-
-      // Save text file
-      const txtFile = filePath.replace(".jpg", ".txt");
-      fs.writeFileSync(txtFile, text);
 
       // Send result
       if (text.trim().length === 0) {
@@ -65,11 +58,8 @@ bot.on("photo", async (msg) => {
         await bot.sendMessage(chatId, text.substring(0, 4000));
       }
 
-      await bot.sendDocument(chatId, txtFile);
-
       // Cleanup
       fs.unlinkSync(filePath);
-      fs.unlinkSync(txtFile);
     });
 
   } catch (err) {
